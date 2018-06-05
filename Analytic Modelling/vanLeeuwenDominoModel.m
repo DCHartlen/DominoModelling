@@ -20,20 +20,20 @@ clear
 clc
 
 %% Domino and Physical Parameters
-NDom = 50;   % Number of dominoes in chain
+NDom = 32;   % Number of dominoes in chain
 mDom = 8e-3; % Mass of dominoes
 % a = 8e-3;   % Width of a single domino
 % b = 50e-3;  % Height of a single domino
 % c = 30e-3;  % Chain spacing. This includes the width of one domino
 a = 7.45e-3;   % Width of a single domino
 b = 48e-3;  % Height of a single domino
-c = (1+2)*a;  % Chain spacing. This includes the width of one domino
-cInit = (1+3)*a; % Spacing of first domino. Used to get more energy in system.
+c = (1+5)*a;  % Chain spacing. This includes the width of one domino
+cInit = a+25.4e-3; % Spacing of first domino. Used to get more energy in system.
 I = mDom*(a^2+b^2)/3; % Domino's mass moment of inertia about corner
-mu = 0.30;  % Coefficient of friction
+mu = 0.0;  % Coefficient of friction
 
 g = 9.81;   % Acceleration of gravity
-initAngle = deg2rad(8.9); % Angle which first domino starts at
+initAngle = deg2rad(20); % Angle which first domino starts at
 minTipAngle = asin(a/2/sqrt((0.5*a)^2+(0.5*b)^2));
 
 %% Time integration parameters
@@ -194,5 +194,7 @@ for nDom = 2:NDom
     omega(nDom) = omega(nDom);
     time(nDom) = tn;
 end
-velocity = cArray(iRec)./time;
+velocity = cArray./time;
 velocityND = velocity./sqrt(g*b);
+mean(time)
+mean(velocity)

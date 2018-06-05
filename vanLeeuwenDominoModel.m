@@ -1,10 +1,10 @@
 %% Shaw Domino Model
 % 
-% Implimented based on Shaw (1978). Mechanics of a chain of dominoes.
-% American Journal of Physics 46(6). pp 640-642.
+% Implimented based on van Leeuwen (2004). The Domino Effect, ArXiv Physics
+% E-Prints.
 %
 % Created by:  D.C. Hartlen, EIT
-% Date:        04-Apr-2018
+% Date:        06-Apr-2018
 % Modified by: D.C. Hartlen, EIT 
 % Date:        07-May-2018
 %
@@ -13,7 +13,6 @@
 % Adapted code to allow for arbitrary domino spacing. Previous code
 % enforced constant domino spacing, preventing the initial domino spacing
 % to be increased to allow for consistant initiation energy.
-       
 
 %% Initialization
 close all
@@ -21,19 +20,20 @@ clear
 clc
 
 %% Domino and Physical Parameters
-NDom = 32;   % Number of dominoes in chain
+NDom = 50;   % Number of dominoes in chain
 mDom = 8e-3; % Mass of dominoes
 % a = 8e-3;   % Width of a single domino
 % b = 50e-3;  % Height of a single domino
 % c = 30e-3;  % Chain spacing. This includes the width of one domino
 a = 7.45e-3;   % Width of a single domino
 b = 48e-3;  % Height of a single domino
-c = (1+5)*a;  % Chain spacing. This includes the width of one domino
-cInit = a+25.4e-3; % Spacing of first domino. Used to get more energy in system.
+c = (1+2)*a;  % Chain spacing. This includes the width of one domino
+cInit = (1+3)*a; % Spacing of first domino. Used to get more energy in system.
 I = mDom*(a^2+b^2)/3; % Domino's mass moment of inertia about corner
+mu = 0.15;  % Coefficient of friction
 
 g = 9.81;   % Acceleration of gravity
-initAngle = deg2rad(20); % Angle which first domino starts at
+initAngle = deg2rad(8.9); % Angle which first domino starts at
 minTipAngle = asin(a/2/sqrt((0.5*a)^2+(0.5*b)^2));
 
 %% Time integration parameters
@@ -45,7 +45,7 @@ theta(1) = initAngle; % Start first domino at 20deg from vertical
 omega = 1.0e-10.*ones(NDom,1); %Initialize speed with very small number (avoids NaN Issues)
 time = 0.*ones(NDom,1); % Initalize fall time for each domino
 cArray = c.*ones(NDom,1); % Initialize array of spacings
-cArray(1) = cInit;  % Set first element of spacing array to be initial spacing
+cArray(1) = cInit;  % Set first element of spacing array to be initial spacin
 
 thetaCrit = asin((c-a)/b); % Critical angle at contact
 thetaCritInit = asin((cInit-a)/b); % Critical angle at contact for first domino
@@ -54,7 +54,7 @@ thetaCritInit = asin((cInit-a)/b); % Critical angle at contact for first domino
 nTimesteps = NDom*nASteps;
 thetaOut = zeros(nTimesteps,NDom); 
 omegaOut = zeros(nTimesteps,NDom);
-energyOut = zeros(nTimesteps,1);
+energyTotOut = zeros(nTimesteps,1);
 timeOut = zeros(nTimesteps,1);
 
 %% Error check of input parameters
@@ -101,7 +101,7 @@ for i=1:nASteps
     % Write to output matrices
     thetaOut((nDom-1)*nASteps+i,:) = theta';
     omegaOut((nDom-1)*nASteps+i,:) = omega';
-    energyOut((nDom-1)*nASteps+i) = Ei;
+    energyTotOut((nDom-1)*nASteps+i) = Ei;
     timeOut((nDom-1)*nASteps+i) = tn;
 end
 theta(nDom) = theta(nDom);
@@ -111,10 +111,25 @@ time(nDom) = tn;
 %% Start loop for remaining dominoes
 
 for nDom = 2:NDom
+%     nDom = 2
     fprintf('--------------------Domino %d--------------------\n',nDom)
-    % Impact rule for dominoes
-    % Find speed of next domino in line
-    omega(nDom) = omega(nDom-1)*(sum(W)/sum([W;1]));
+    % Start van Leewen contact modeling (accounts for changing moment arms)
+    % Compute alpha and beta coefficients as well as r. This calculuation
+    % is done back to front, instead of the reversed arrays documented by
+    % van Leewen.
+    r = zeros(nDom,1);
+    r(end) = 1;
+    for iRec = nDom-1:-1:1
+        alpha(iRec) = b*cos(theta(iRec)-theta(iRec+1)) -...
+            cArray(iRec)*sin(theta(iRec+1)) - mu*a;
+        beta(iRec) = b*cos(theta(iRec)-theta(iRec+1)) + ...
+            mu*b*sin(theta(iRec)-theta(iRec+1));
+        r(iRec) = r(iRec+1)*alpha(iRec)/beta(iRec);
+    end
+    W = [W;1];
+    J = sum(r.*W);
+    omega(nDom) = (J-1)/J*omega(nDom-1);
+
     % Begin recusion to compute speed of previous dominoes after impact
     for iRec = nDom-1:-1:1
         omega(iRec) = omega(iRec+1)*...
@@ -169,7 +184,7 @@ for nDom = 2:NDom
         % Write to output matrices
         thetaOut((nDom-1)*nASteps+i,:) = theta';
         omegaOut((nDom-1)*nASteps+i,:) = omega';
-        energyOut((nDom-1)*nASteps+i) = Ei;
+        energyTotOut((nDom-1)*nASteps+i) = Ei;
         timeOut((nDom-1)*nASteps+i) = sum(time(1:nDom-1))+tn;
          
     end % End angle integration
@@ -179,8 +194,5 @@ for nDom = 2:NDom
     omega(nDom) = omega(nDom);
     time(nDom) = tn;
 end
-
-velocity = cArray./time;
+velocity = cArray(iRec)./time;
 velocityND = velocity./sqrt(g*b);
-mean(time)
-mean(velocity)

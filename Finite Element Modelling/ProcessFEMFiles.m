@@ -21,7 +21,7 @@ glstatData = glstat_parser(fileName);
 
 
 xx = glstatData.Time;
-yy = glstatData.InterfaceEng;
+yy = glstatData.ZVel;
 Fs = (xx(2)-xx(1))^(-1);
 
 figure('Name', 'Crop Full Data',...
@@ -34,20 +34,23 @@ ylabel('Amp')
 title('Crop Data')
 hold on
 
-
 % Enable interactive cropping
 [bx(1),~] = ginput(1);
 line([bx(1),bx(1)],yl,'Color','k')
 [bx(2),~] = ginput(1);
 line([bx(2),bx(2)],yl,'Color','k')
 
+bx = sort(bx);  % Sort bx to place smaller index first
+
 % Crop data
 xxCropped = xx(bx(1)*Fs:bx(2)*Fs);
 % xx = xx-xx(1);
 yyCropped = yy(bx(1)*Fs:bx(2)*Fs);
 
-yyDetrend = detrend(yyCropped,'linear');
+yyDetrend = PolyDetrend(xxCropped,yyCropped,3);
 
+figure('Name', 'Processed Data',...
+    'OuterPosition',[0 0 screenSize(3) screenSize(4)])
 subplot(2,2,1)
 hold on 
 plot(xxCropped, yyCropped)
@@ -56,35 +59,37 @@ plot(xxCropped, yyDetrend)
 xlabel('Time (s)')
 ylabel('Amp')
 title('Cropped Data')
+legend('Cropped','Cropped & Detrended')
  
 % % Rectify data
 % yy = yy.^2;
 % 
-% %Develop and apply low pass filter to data
-% Fpass = 150;
-% Fstop = 300;
-% Apass = 1.0;
-% Astop = 65;
-% d = designfilt('lowpassiir', ...
-%   'PassbandFrequency',Fpass,'StopbandFrequency',Fstop, ...
-%   'PassbandRipple',Apass,'StopbandAttenuation',Astop, ...
-%   'DesignMethod','butter','SampleRate',Fs);
-% % fvtool(d)
-% 
-% yyFilt = filtfilt(d,yy);
+%Develop and apply low pass filter to data
+Fpass = 75;
+Fstop = 300;
+Apass = 1.0;
+Astop = 65;
+d = designfilt('lowpassiir', ...
+  'PassbandFrequency',Fpass,'StopbandFrequency',Fstop, ...
+  'PassbandRipple',Apass,'StopbandAttenuation',Astop, ...
+  'DesignMethod','butter','SampleRate',Fs);
+% fvtool(d)
+
+yyDetrend = filtfilt(d,yyDetrend);
 % 
 % Plot Filtered Data
+% yyDetrend = -yyDetrend;
 subplot(2,2,3)
 hold on
-plot(xxCropped,yyDetrend)
+plot(xxCropped,smooth(yyDetrend))
 xlabel('Time (s)')
 ylabel('Amp')
 title('Isolated Peaks')
 
 % Find Peaks in filtered data
-peakHeightThreshold = 1.5e-4;
-peakSeperationThreshold = 0.012;
-[peakVal,peakLoc,w,prom] = findpeaks(yyDetrend,Fs,...
+peakHeightThreshold = 5.0e-4;
+peakSeperationThreshold = 0.030;
+[peakVal,peakLoc,w,prom] = findpeaks(smooth(yyDetrend),Fs,...
                               'MinPeakDistance',peakSeperationThreshold,...
                               'MinPeakProminence', peakHeightThreshold);
 hold on
@@ -114,7 +119,7 @@ title(['Impact Frequency wrt Time: Mean Freq = ',num2str(meanFreq)])
 % % xlim([-inf,100])
 % 
 % Perform PSD on unfiltered Data
-[pxx,f] = periodogram(yy,hanning(length(yy)),[],Fs);
+[pxx,f] = periodogram(yyDetrend,hanning(length(yyDetrend)),[],Fs);
 subplot(2,2,2)
 hold on
 plot(f(5:end),pxx(5:end))
