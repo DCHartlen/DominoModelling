@@ -1,4 +1,4 @@
-%% Shaw Domino Model
+%% van Leeuwen Domino Model
 % 
 % Implimented based on van Leeuwen (2004). The Domino Effect, ArXiv Physics
 % E-Prints.
@@ -10,6 +10,7 @@
 %
 % Change log:
 % 07-May-2018
+%
 % Adapted code to allow for arbitrary domino spacing. Previous code
 % enforced constant domino spacing, preventing the initial domino spacing
 % to be increased to allow for consistant initiation energy.
@@ -22,12 +23,9 @@ clc
 %% Domino and Physical Parameters
 NDom = 32;   % Number of dominoes in chain
 mDom = 8e-3; % Mass of dominoes
-% a = 8e-3;   % Width of a single domino
-% b = 50e-3;  % Height of a single domino
-% c = 30e-3;  % Chain spacing. This includes the width of one domino
 a = 7.45e-3;   % Width of a single domino
 b = 48e-3;  % Height of a single domino
-c = (1+5)*a;  % Chain spacing. This includes the width of one domino
+c = (1+3)*a;  % Chain spacing. This includes the width of one domino
 cInit = a+25.4e-3; % Spacing of first domino. Used to get more energy in system.
 I = mDom*(a^2+b^2)/3; % Domino's mass moment of inertia about corner
 mu = 0.0;  % Coefficient of friction
@@ -68,13 +66,13 @@ assert(theta(1)<thetaCritInit, 'Error: Initiation angle is larger than critical 
 %% Start Calculation for domino 1
 % Pre-integration compuation
 nDom = 1;  % Special case of at first domino
-fprintf('--------------------Domino %d--------------------\n',nDom)
+% fprintf('--------------------Domino %d--------------------\n',nDom)
 
 thetaInit = theta(nDom); % Initial angle of domino n
 delTheta = (thetaCritInit-thetaInit)/nASteps; % Compute angle step for integration
 % Energy in first n dominoes (energy in first domino)
 E = 0.5*mDom*g*(b*sum(cos(theta(1:nDom)))+a*sum(sin(theta(1:nDom))))...
-    + 0.5*I*sum(omega(1:nDom).^2)
+    + 0.5*I*sum(omega(1:nDom).^2);
 tn = 0; %time counter for current domino
 
 % Commence Angle/Time Integration
@@ -112,7 +110,7 @@ time(nDom) = tn;
 
 for nDom = 2:NDom
 %     nDom = 2
-    fprintf('--------------------Domino %d--------------------\n',nDom)
+%     fprintf('--------------------Domino %d--------------------\n',nDom)
     % Start van Leewen contact modeling (accounts for changing moment arms)
     % Compute alpha and beta coefficients as well as r. This calculuation
     % is done back to front, instead of the reversed arrays documented by
@@ -139,7 +137,7 @@ for nDom = 2:NDom
     
     % Calculate active energy
     E = 0.5*mDom*g*(b*sum(cos(theta(1:nDom)))+a*sum(sin(theta(1:nDom))))...
-        + 0.5*I*sum(omega(1:nDom).^2)
+        + 0.5*I*sum(omega(1:nDom).^2);
     
     % Start Angle/Time integration
     thetaInit = theta(nDom); % Initial angle of domino n
@@ -196,5 +194,5 @@ for nDom = 2:NDom
 end
 velocity = cArray./time;
 velocityND = velocity./sqrt(g*b);
-mean(time)
-mean(velocity)
+% mean(time)
+% mean(velocity)

@@ -23,9 +23,6 @@ clc
 %% Domino and Physical Parameters
 NDom = 32;   % Number of dominoes in chain
 mDom = 8e-3; % Mass of dominoes
-% a = 8e-3;   % Width of a single domino
-% b = 50e-3;  % Height of a single domino
-% c = 30e-3;  % Chain spacing. This includes the width of one domino
 a = 7.45e-3;   % Width of a single domino
 b = 48e-3;  % Height of a single domino
 c = (1+5)*a;  % Chain spacing. This includes the width of one domino
@@ -68,13 +65,13 @@ assert(theta(1)<thetaCritInit, 'Error: Initiation angle is larger than critical 
 %% Start Calculation for domino 1
 % Pre-integration compuation
 nDom = 1;  % Special case of at first domino
-fprintf('--------------------Domino %d--------------------\n',nDom)
+% fprintf('--------------------Domino %d--------------------\n',nDom)
 
 thetaInit = theta(nDom); % Initial angle of domino n
 delTheta = (thetaCritInit-thetaInit)/nASteps; % Compute angle step for integration
 % Energy in first n dominoes (energy in first domino)
 E = 0.5*mDom*g*(b*sum(cos(theta(1:nDom)))+a*sum(sin(theta(1:nDom))))...
-    + 0.5*I*sum(omega(1:nDom).^2)
+    + 0.5*I*sum(omega(1:nDom).^2);
 tn = 0; %time counter for current domino
 
 % Commence Angle/Time Integration
@@ -111,7 +108,7 @@ time(nDom) = tn;
 %% Start loop for remaining dominoes
 
 for nDom = 2:NDom
-    fprintf('--------------------Domino %d--------------------\n',nDom)
+%     fprintf('--------------------Domino %d--------------------\n',nDom)
     % Impact rule for dominoes
     % Find speed of next domino in line
     omega(nDom) = omega(nDom-1)*(sum(W)/sum([W;1]));
@@ -124,7 +121,7 @@ for nDom = 2:NDom
     
     % Calculate active energy
     E = 0.5*mDom*g*(b*sum(cos(theta(1:nDom)))+a*sum(sin(theta(1:nDom))))...
-        + 0.5*I*sum(omega(1:nDom).^2)
+        + 0.5*I*sum(omega(1:nDom).^2);
     
     % Start Angle/Time integration
     thetaInit = theta(nDom); % Initial angle of domino n
@@ -182,5 +179,5 @@ end
 
 velocity = cArray./time;
 velocityND = velocity./sqrt(g*b);
-mean(time)
-mean(velocity)
+% mean(time)
+% mean(velocity)
