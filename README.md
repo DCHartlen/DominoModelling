@@ -7,14 +7,18 @@ domino mechanics. The repository is broken into several subsections.
 
 This folder contains two analytic domino models created by D. Shaw (1978)
 and J.M.J van Leeuwen (2004). This folder also contains scripts and functions
-created to animate the analytic models. 
+created to animate the analytic models.
+
+D. E. Shaw (1978), “Mechanics of a chain of dominoes,” Am. J. Phys., vol. 46, no. 6, pp. 640–642.
+
+J. M. J. van Leeuwen (2004), “The Domino Effect,” ArXiv Phys. e-prints, ArXiv ID: physics/0401018.
 
 ## Experimental Data Processing
 
 This folder contains a script to process experimental data. Currently,
 all processing is based on audio analysis.
 
-## Finite Element Modelling
+## FEM Data Processing
 
 This folder contains scripts to process the output of FE models. Processing
 scripts are very similar to audio processing scripts, but contain significantly 
