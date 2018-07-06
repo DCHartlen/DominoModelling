@@ -1,4 +1,4 @@
-function DominoAnimator(dominoDims, spacing, timestamps, dominoAngles)
+function DominoAnimator(dominoDims, spacing, timestamps, dominoAngles, modelName)
 %% Domino Plotter
 % 
 % Takes angle and postion data and plots dominos falling
@@ -13,6 +13,7 @@ function DominoAnimator(dominoDims, spacing, timestamps, dominoAngles)
 %   spacing: array containing all arbitrary spacing
 %   timestamp: array of timestamps corresponding to dominoAngles
 %   dominoAngles: contains angle data for all dominoes over all timesteps.
+%   modelName: string
 %
 % TODO: Add ability to cope with arbitrary spacing
 % TODO: Impliment better data input method which does not rely on 
@@ -27,6 +28,7 @@ w = dominoDims(2)*1000; %Domino Width
 h = dominoDims(1)*1000; %Domino Height
 
 s = 4*w; %Domino Spacing
+spacing=spacing*1000;
 
 % extract number of dominoes
 nDom = size(dominoAngles,2); %number of dominos
@@ -34,13 +36,23 @@ nTimestamp = length(timestamps); %number timesteps
 
 tmax = max(timestamps);
 
+% Initialize variables for speed
+im = cell(nTimestamp/10,1);
+
 %% Create images for the animation
 % Outer loop creates snapshot of domino position
 for  i = 1:10:nTimestamp
     % Inner loop creates the dominos one by one
     for j = 1:nDom
         % TODO Update spacing logic
-        d=j*s;
+%         d=j*s;
+        
+        if j==1
+            d=0;
+        else
+            d = sum(spacing(1:j-1));
+        end
+        
         theta = pi/2 - dominoAngles(i,j);
         %Setup point equations
         pt1 = [d; 0];
@@ -53,20 +65,20 @@ for  i = 1:10:nTimestamp
         % TODO Find a more elegant plotting? Maybe call figure outside
         % inner loop?
         figure(1)
-        title('Shaw Model (Analytic) 25 Domino Numeric Simulation')
-        set(gcf, 'Position', [100, 100, 1000, 100])
+        title([modelName ', ' num2str(nDom,'%d') ' Dominoes'])
+        set(gcf, 'Position', [100, 100, 100+3*(sum(spacing)+h), 100+3*h])
         fill(domPts(1,:), domPts(2,:), 'r')
         xlabel('Length (mm)')
         ylabel('Height (mm)')
-        axis([-5,s*nDom,-5,h+5])
-        drawnow limitrate
+        axis image
+        axis([-2*spacing(end),sum(spacing)+h,-0.1*h,1.1*h])
         hold on
     end
     
     % Convert a figure to an image and store
     frame = getframe(figure(1));
     im{i} = frame2im(frame);
-    [A,map] = rgb2ind(im{i},256);
+%     [A,map] = rgb2ind(im{i},256);
         
     hold off
 end
