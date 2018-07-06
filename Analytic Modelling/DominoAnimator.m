@@ -72,8 +72,11 @@ for  i = 1:10:nTimestamp
         ylabel('Height (mm)')
         axis image
         axis([-2*spacing(end),sum(spacing)+h,-0.1*h,1.1*h])
+        text(sum(spacing)+0.9*h,1.00*h,['t=' num2str(timestamps(i),'%0.3f') ' s'],...
+            'HorizontalAlignment','right','FontSize',14)
         hold on
     end
+    
     
     % Convert a figure to an image and store
     frame = getframe(figure(1));
@@ -88,6 +91,8 @@ filename = 'testGIF.gif';
 
 for idx = 1:50:nTimestamp
     [A,map] = rgb2ind(im{idx},256);
+    % TODO: set time increment to be actual time increment? Can gifs have
+    % irregular spacing?
     if idx == 1
         imwrite(A,map,filename,'gif','LoopCount',Inf,'DelayTime',0.002);
     else
