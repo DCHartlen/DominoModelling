@@ -7,16 +7,19 @@
 %
 % Created by:  D.C. Hartlen, EIT
 % Date:        17-Apr-2018
-% Modified by: 
-% Date:        
+% Modified by: D.C. Hartlen, EIT
+% Date:        17-Aug-2018
+
+close all
+clear
+clc
 
 screenSize = get( groot, 'Screensize' );
 
 % Load Data
 % [yy,Fs] = audioread('Domino_7pt5_1.m4a');
-fileName = uigetfile({'*.m4a';'*.wav';'*.mp3';'*.*'},'Select Audio File');
-[yy,Fs] = audioread(fileName);
-
+[fileName, pathname, ~] = uigetfile({'*.*'},'Select Audio File');
+[yy,Fs] = audioread([pathname fileName]);
 
 xx = linspace(0,length(yy)/Fs,length(yy))';
 
@@ -37,12 +40,12 @@ line([bx(2),bx(2)],[-1.5,1.5],'Color','k')
 bx = sort(bx);
 
 % Crop data
-xx = xx(bx(1)*Fs:bx(2)*Fs);
+xx = xx(int32(bx(1)*Fs):int32(bx(2)*Fs));
 % xx = xx-xx(1);
-yy = yy(bx(1)*Fs:bx(2)*Fs);
+yy = yy(int32(bx(1)*Fs):int32(bx(2)*Fs));
 
-[path, name, ext] = fileparts(fileName)
-name = [name '_Cropped']
-newFileName = [name,'.wav']
+[path, name, ext] = fileparts(fileName);
+name = [name '_Cropped'];
+newFileName = [name,'.wav'];
 
-audiowrite(newFileName, yy,Fs)
+audiowrite([pathname newFileName], yy,Fs)
