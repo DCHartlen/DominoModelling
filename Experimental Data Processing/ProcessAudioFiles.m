@@ -79,8 +79,9 @@ ylabel('Amp')
 title('Isolated Peaks')
 
 % Find Peaks in filtered data
-peakHeightThreshold = 0.006;
-peakSeperationThreshold = 0.015;
+peakHeightThreshold = 0.0000
+5;
+peakSeperationThreshold = 0.006;
 [peakVal,peakLoc,w,prom] = findpeaks(yyFilt,Fs,...
                               'MinPeakDistance',peakSeperationThreshold,...
                               'MinPeakProminence',peakHeightThreshold);

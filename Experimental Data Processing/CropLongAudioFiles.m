@@ -18,7 +18,8 @@ screenSize = get( groot, 'Screensize' );
 
 % Load Data
 % [yy,Fs] = audioread('Domino_7pt5_1.m4a');
-[fileName, pathname, ~] = uigetfile({'*.*'},'Select Audio File');
+[fileName, pathname, ~] = uigetfile({'*.*'},'Select Audio File',...
+    'E:\Users\Devon\Dropbox\02 - Projects\16 Dominos\02 - Audio Data');
 [yy,Fs] = audioread([pathname fileName]);
 
 xx = linspace(0,length(yy)/Fs,length(yy))';

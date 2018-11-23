@@ -16,8 +16,8 @@ screenSize = get( groot, 'Screensize' );
 
 % Load Data
 % [yy,Fs] = audioread('Domino_7pt5_1.m4a');
-fileName = uigetfile({'*.*'},'Select GLSTAT File');
-glstatData = glstat_parser(fileName);
+[fileName, pathname, ~] = uigetfile({'*.*'},'Select GLSTAT File');
+glstatData = glstat_parser([pathname fileName]);
 
 
 xx = glstatData.Time;
@@ -87,11 +87,11 @@ ylabel('Amp')
 title('Isolated Peaks')
 
 % Find Peaks in filtered data
-peakHeightThreshold = 5.0e-4;
-peakSeperationThreshold = 0.030;
-[peakVal,peakLoc,w,prom] = findpeaks(smooth(yyDetrend),Fs,...
+peakHeightThreshold = 10e-4;
+peakSeperationThreshold = 0.020;
+[peakVal,peakLoc,w,prom] = findpeaks(yyDetrend,Fs,...
                               'MinPeakDistance',peakSeperationThreshold,...
-                              'MinPeakProminence', peakHeightThreshold);
+                              'MinPeakProminence',peakHeightThreshold);
 hold on
 plot(peakLoc+xxCropped(1),peakVal,'ro')
 legend('Filtered Data','Peaks')

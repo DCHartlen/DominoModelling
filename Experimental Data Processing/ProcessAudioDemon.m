@@ -17,7 +17,8 @@ clc
 screenSize = get( groot, 'Screensize' );
 
 % Load Data
-[fileName, pathname, ~] = uigetfile({'*.*'},'Select Audio File');
+[fileName, pathname, ~] = uigetfile({'*.*'},'Select Audio File',...
+    'E:\Users\Devon\Dropbox\02 - Projects\16 Dominos\02 - Audio Data');
 [yy,Fs] = audioread([pathname fileName]);
 
 xx = linspace(0,length(yy)/Fs,length(yy))';
@@ -49,7 +50,7 @@ yy = sqrt(yy.^2); % Full Bridge
 % yy(yy<=0) = 0;  % Half Bridge
 
 % Envelop detection
-envelopeWindow = 125;
+envelopeWindow = 115;
 [uppEnv, ~] = envelope(yy,envelopeWindow,'peak');
 
 figure('Name', 'Analysed Data',...
@@ -63,8 +64,8 @@ ylabel('Amp')
 title('Rectified Envelope')
 
 %% Find Peaks of Envelope
-peakHeightThreshold = 0.1;
-peakSeperationThreshold = 0.020;
+peakHeightThreshold = 0.07;
+peakSeperationThreshold = 0.018;
 [peakVal,peakLoc,w,prom] = findpeaks(uppEnv,Fs,...
                               'MinPeakDistance',peakSeperationThreshold,...
                               'MinPeakProminence',peakHeightThreshold);
@@ -87,7 +88,7 @@ end
 
 % Plot Frequency
 subplot(2,2,4)
-plot(peakLoc(2:min(32,end)),1./delLoc(1:min(31,end)),'b-*')
+plot(peakLoc(2:min(32,end))-peakLoc(2),1./delLoc(1:min(31,end)),'b-*')
 hold on
 meanFreq = mean(1./delLoc(1:min(31,end)));
 xl = xlim;
@@ -103,6 +104,9 @@ hold on
 plot(f,pxx)
 xlabel('Frequency (1/s)')
 ylabel('Amp')
-title('PSD of cropped data')
+title('PSD of Envelope')
 xlim([5,100])
 
+%% Save data of interest
+[~,fname,~]=fileparts(fileName)
+save([pathname,fname,'.mat'],'peakLoc','delLoc')
